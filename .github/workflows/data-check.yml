@@ -16,7 +16,8 @@ jobs:
         run: node tools/export_json.js
       - name: Ensure generated data is committed
         run: |
-          if ! git diff --exit-code -- data/; then
+          if [ -n "$(git status --porcelain -- data/)" ]; then
+            git status --short -- data/
             echo "data/ 与 js/data.js 不同步，请运行 node tools/export_json.js 并提交。"
             exit 1
           fi
