@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>麒麟芯片图鉴 · Kirin-L</title>
+  <meta name="description" content="从 9000S 到 9050，华为麒麟芯片的 CPU 刀法、GPU 规模、基带 / ISP / NPU 削减、衍生关系与搭载机型。原文未给出的制程、缓存、内存、NPU 与跑分联网核对并标注来源与可信度。">
+  <meta name="theme-color" content="#0d1014">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/app.css">
+  <script>
+    try {
+      var t = localStorage.getItem("kirin.theme");
+      if (t !== "light" && t !== "dark") {
+        t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.dataset.theme = t;
+    } catch (e) {
+      document.documentElement.dataset.theme = "dark";
+    }
+  </script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#/chips" aria-label="麒麟芯片图鉴首页">
+        <span class="brand-mark">
+          <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <rect x="6.5" y="6.5" width="19" height="19" rx="4" stroke="currentColor" stroke-width="1.6"/>
+            <rect x="12" y="12" width="8" height="8" rx="2" fill="currentColor" opacity=".9"/>
+            <path d="M11 3v4M16 3v4M21 3v4M11 25v4M16 25v4M21 25v4M3 11h4M3 16h4M3 21h4M25 11h4M25 16h4M25 21h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".55"/>
+          </svg>
+        </span>
+        <span class="brand-copy">
+          <b>麒麟图鉴</b>
+          <small>KIRIN-L</small>
+        </span>
+      </a>
+
+      <nav class="side-nav" aria-label="主导航">
+        <a href="#/chips" data-nav="chips">
+          <span class="nav-icon" data-icon="chip"></span>
+          <span>芯片库</span>
+        </a>
+        <a href="#/compare" data-nav="compare">
+          <span class="nav-icon" data-icon="balance"></span>
+          <span>对比</span>
+          <span class="nav-count zero" data-cmp-count>0</span>
+        </a>
+        <a href="#/series" data-nav="series">
+          <span class="nav-icon" data-icon="layers"></span>
+          <span>世代与刀法</span>
+        </a>
+        <a href="#/about" data-nav="about">
+          <span class="nav-icon" data-icon="info"></span>
+          <span>说明</span>
+        </a>
+      </nav>
+
+      <div class="side-foot">
+        <div class="side-note">
+          <span class="dot"></span>
+          <span>内置数据 v5.0<br><small>原文 + 联网补充 · 可离线</small></span>
+        </div>
+        <button class="theme-btn" data-theme-toggle aria-label="切换主题"></button>
+        <p class="side-source">数据：酷安《新时代麒麟芯片汇总 5.0》<br>作者：杜马1124</p>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="mobilebar">
+        <a class="brand compact" href="#/chips">
+          <span class="brand-mark">
+            <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+              <rect x="6.5" y="6.5" width="19" height="19" rx="4" stroke="currentColor" stroke-width="1.6"/>
+              <rect x="12" y="12" width="8" height="8" rx="2" fill="currentColor" opacity=".9"/>
+              <path d="M11 3v4M16 3v4M21 3v4M11 25v4M16 25v4M21 25v4M3 11h4M3 16h4M3 21h4M25 11h4M25 16h4M25 21h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".55"/>
+            </svg>
+          </span>
+          <span class="brand-copy"><b>麒麟图鉴</b><small>KIRIN-L</small></span>
+        </a>
+        <button class="theme-btn" data-theme-toggle aria-label="切换主题"></button>
+      </header>
+
+      <main id="view" class="view" tabindex="-1"></main>
+
+      <footer class="site-foot">
+        <span>Kirin-L · 非官方整理</span>
+        <span>数据版权归原作者 · 与华为 / 酷安无关联</span>
+      </footer>
+    </div>
+
+    <nav class="tabbar" aria-label="底部导航">
+      <a href="#/chips" data-nav="chips">
+        <span class="nav-icon" data-icon="chip"></span>
+        <span>芯片</span>
+      </a>
+      <a href="#/compare" data-nav="compare">
+        <span class="nav-icon" data-icon="balance"></span>
+        <span>对比</span>
+        <span class="nav-count zero" data-cmp-count>0</span>
+      </a>
+      <a href="#/series" data-nav="series">
+        <span class="nav-icon" data-icon="layers"></span>
+        <span>世代</span>
+      </a>
+      <a href="#/about" data-nav="about">
+        <span class="nav-icon" data-icon="info"></span>
+        <span>说明</span>
+      </a>
+    </nav>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="modal"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

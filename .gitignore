@@ -1,0 +1,21 @@
+.DS_Store
+
+# ---- 构建产物 / 二进制（不入库） ----
+android/build/
+android/assets/
+android/out/
+native/build/
+native/app/build/
+native/.gradle/
+native/local.properties
+native/out/
+*.apk
+*.aab
+
+# ---- 签名文件（不入库） ----
+android/debug.keystore
+*.jks
+*.keystore
+
+# ---- 第三方原文截图（仅本地校对，不二次分发） ----
+data/_source/

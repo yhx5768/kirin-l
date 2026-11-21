@@ -1,0 +1,32 @@
+{
+  "name": "麒麟芯片图鉴 · Kirin-L",
+  "short_name": "麒麟图鉴",
+  "description": "从 9000S 到 9050，华为麒麟芯片的 CPU 刀法、GPU 规模、基带 / ISP / NPU 削减、衍生关系与搭载机型。",
+  "lang": "zh-CN",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0b0e13",
+  "theme_color": "#0b0e13",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
