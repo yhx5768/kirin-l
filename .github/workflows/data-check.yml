@@ -1,0 +1,22 @@
+name: data-check
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify-json:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Rebuild data/kirin.json + manifest.json
+        run: node tools/export_json.js
+      - name: Ensure generated data is committed
+        run: |
+          if ! git diff --exit-code -- data/; then
+            echo "data/ 与 js/data.js 不同步，请运行 node tools/export_json.js 并提交。"
+            exit 1
+          fi

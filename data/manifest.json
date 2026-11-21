@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "dataVersion": "5.0",
+  "updated": "2026-11-17",
+  "file": "kirin.json",
+  "sha256": "0c04c2a3334499fdf3327df9dcc70bdc905a5bece88a0c4231140fe75a0208b3",
+  "size": 120226,
+  "counts": {
+    "chips": 51,
+    "families": 8,
+    "sources": 38
+  }
+}

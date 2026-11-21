@@ -23,8 +23,9 @@ adb install --no-incremental app/build/outputs/apk/release/app-release.apk
 - 版本 2.0.0 / versionCode 3，minSdk 26（Android 8.0），约 11MB。
 - **当前版本完全离线**：数据编译进 APK，Manifest 未申请网络权限。
   （从 GitHub 拉 JSON 做动态更新是后续可选项，见「数据动态更新」。）
-- release 使用 `android/debug.keystore` 签名；该文件不入库，克隆后需自行生成或改用
-  自己的签名配置。签名不同则无法覆盖安装旧版，需先卸载。
+- 仓库不包含 `android/debug.keystore`。本地存在该文件时 release 会用它签名，
+  不存在时自动回退到 Gradle debug 签名；签名不同则无法覆盖安装旧版，需先卸载。
+- 仓库不包含 APK / AAB、签名文件、原文截图（`data/_source/`）等二进制或第三方内容。
 
 ## 功能
 
@@ -66,6 +67,15 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 工程使用 Kotlin 2.1.20、AGP 8.9.1、Compose BOM 2025.04.01、Material 3，compileSdk 36 / targetSdk 35。
 
+数据导出（生成 `data/kirin.json` 与 `data/manifest.json`）：
+
+```bash
+node tools/export_json.js
+# 会校验 51 芯片 / 8 世代 / 38 来源，并写入 sha256
+```
+
+GitHub Actions 的 `data-check` 会运行同一脚本，并检查 `data/` 是否已随 `js/data.js` 更新。
+
 ## 数据来源
 
 ### 主数据源
@@ -95,7 +105,10 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 - `js/data.js`：唯一数据源（Web 原型与原生共用）。
 - `data/kirin.json`：同一份数据的机器可读导出（51 芯片 / 8 世代 / 38 来源），
   供动态更新或第三方复用。
-- 修改数据后重新生成 Kotlin：`cd native && node tools/gen_data.js`。
+- `data/manifest.json`：版本、大小、sha256 与计数，供 App 做增量更新前校验。
+- 修改 `js/data.js` 后：
+  - 重新生成 Kotlin：`cd native && node tools/gen_data.js`
+  - 重新导出 JSON：`node tools/export_json.js`
 
 > `data/_source/` 是原文截图，仅用于本地校对，**不入库**（第三方内容，不二次分发）。
 > 本项目只整理事实性参数并注明出处，原文版权归原作者所有。
@@ -106,17 +119,34 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 - 固定地址（`main` 分支）：
   `https://raw.githubusercontent.com/yhx5768/kirin-l/main/data/kirin.json`
+- 版本与校验清单：
+  `https://raw.githubusercontent.com/yhx5768/kirin-l/main/data/manifest.json`
 - 国内网络建议配镜像（`raw.githubusercontent.com` 经常不可达）：
   `https://cdn.jsdelivr.net/gh/yhx5768/kirin-l@main/data/kirin.json`，或自建反代。
 - 建议流程：
   1. App 增加 `INTERNET` 权限与后台更新器；启动先加载内置数据，保证离线可用。
-  2. 请求 JSON 时带 `If-None-Match` / `If-Modified-Since`，超时 5s，比较
-     `meta.dataVersion` / `meta.updated`。
-  3. 校验 `schema`、大小上限与字段完整性，写入 `filesDir` 缓存；
-     解析失败或网络失败一律回退内置数据。
-  4. 缓存数据在下次启动或手动「检查数据更新」时生效。
+  2. 先请求 `manifest.json`，比较 `dataVersion` / `updated`；带
+     `If-None-Match` / `If-Modified-Since`，超时 5s。
+  3. 下载 `kirin.json`，校验 `schemaVersion`、大小上限、`sha256` 与字段完整性，
+     写入 `filesDir` 缓存；解析失败或网络失败一律回退内置数据。
+  4. 缓存数据在下次启动或手动「检查数据更新」时生效，保留上一份可用数据以便回滚。
   5. `raw` JSON 没有签名，只能防传输损坏、不能防仓库被改；要求高可另加
      minisign 签名文件或从 Releases 拉带校验和的包。
+
+### 结论与风险
+
+- **结论**：技术上完全可行，而且 `data/kirin.json` + `manifest.json` 已经就位；
+  但当前 App 还没接，是否实现等确认。建议先只做「数据更新」，不做代码热更新。
+- **不建议**把 `raw.githubusercontent.com` 当唯一生产源：国内网络经常不可达，
+  raw 有缓存延迟、没有 SLA、也没有签名；可以 GitHub Pages / jsDelivr / 自建对象存储
+  做多源，raw 只做兜底。
+- **主要风险**：JSON schema 漂移、字段缺失导致详情页崩溃、缓存写坏、更新后无法回滚、
+  仓库被改（hash 只能校验一致性，不能证明来源）、用户流量与后台更新耗电。
+- **实现成本**：约 1–2 天。需要加 `kotlinx.serialization`（或手写 JSON 解析）、
+  `INTERNET` 权限、`DataRepository` 层（内置数据 → 缓存 JSON 覆盖）、设置页手动检查入口，
+  以及 schema 校验与回滚。UI 已按数据驱动，不需要重写页面。
+- 如果要做，建议先加一个**只读、可关闭**的「检查数据更新」入口，默认不自动联网，
+  验证稳定后再做启动静默检查。
 
 当前 App 仍把数据编译进 `KirinData.kt`，UI 直接引用顶层 `chips`；要接入动态更新需要加一层
 `DataRepository`（内置数据 → 缓存 JSON 覆盖）并补 JSON 解析，这是下一步工作。
@@ -135,6 +165,8 @@ kirin-soc/
 │   └── build.gradle.kts
 ├── js/data.js                 # 数据源（Web + 原生共用）
 ├── data/kirin.json            # 机器可读数据导出（动态更新用）
+├── data/manifest.json         # 版本 / 大小 / sha256
+├── tools/export_json.js       # js/data.js → JSON + manifest
 ├── web 原型：index.html / css / js / sw.js
 ├── android/                   # 旧 WebView 壳（legacy）
 └── docs/                      # 截图
